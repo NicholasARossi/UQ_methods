@@ -41,7 +41,7 @@ class EnsembleModel():
             splits= KFold(n_splits=n_splits).split(self.X_train)
 
         if splitting=='stratified':
-            splits_list=stratify_all(self.y_train.ravel(),n_splits,n_bins=40,test_size=0.1,one_sample_override=one_sample_override)
+            splits_list=stratify_all(self.y_train.ravel(),n_splits,n_bins=10,test_size=0.1,one_sample_override=one_sample_override)
             splits = (n for n in splits_list)
 
         if splitting not in ['shuffle','stratified','kfold']:
@@ -101,7 +101,7 @@ class EnsembleModel():
 
         return self.predictions
 
-    def visualize_ensemble(self,X_holdout,destination='../Media',title='',animate=False):
+    def visualize_ensemble(self,X_holdout,destination='../Media',title='temp',animate=False):
 
         ''' Animation method for some of the above computation'''
         raw_pred = self.raw_predictions['X']
@@ -153,8 +153,8 @@ class EnsembleModel():
                                                                                  destination=os.path.join(destination,f'{title}.gif'),
                                                                                  plot_kws={'alpha': 0.5,
                                                                                            'title': '5 Seperate Models',
-                                                                                           'xlabel': 'True Values',
-                                                                                           'ylabel': 'Normalized Annual Income'})
+                                                                                           'xlabel': 'Normalized Annual Income',
+                                                                                           'ylabel': 'Predcited Values'})
 if __name__ == '__main__':
     from synthetic_data_generator import meal_income
 
