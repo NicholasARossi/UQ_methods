@@ -1,13 +1,27 @@
 import numpy as np
 import pandas as pd
 
-def meal_income(size=1000):
+def meal_income(size=1000,return_df=False,n_dimensions=1):
     x_values = np.sort(np.random.uniform(100, size=size))
     y_values = []
     for x_value in x_values:
         y_values.append(np.random.uniform(x_value))
 
-    return {'X':x_values.reshape(-1,1),'y':np.array(y_values).reshape(-1,1),'mu':x_values/2,'sigma':np.sqrt(x_values**2/12)}
+    if n_dimensions==1:
+        meal_dict={'X':x_values.reshape(-1,1),'y':np.array(y_values).reshape(-1,1),'mu':x_values/2,'sigma':np.sqrt(x_values**2/12)}
+    else:
+        meal_dict={'y':np.array(y_values).reshape(-1,1),'mu':x_values/2,'sigma':np.sqrt(x_values**2/12)}
+        for n in range(n_dimensions):
+            meal_dict[f'X{n}']=x_values.reshape(-1,1)
+
+    if return_df==False:
+        return meal_dict
+    else:
+        meal_income_df = pd.DataFrame()
+        for key in meal_dict.keys():
+            meal_income_df[key] = meal_dict[key].ravel()
+
+        return meal_income_df
 
 def MLR(feature_noise_caller=False,output_noise_caller=True,n_features=10,data_size=101):
     '''This is a simple helper function that can be used to generate data that features
