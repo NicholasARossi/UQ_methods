@@ -62,15 +62,7 @@ class EnsembleModel():
                 coeffs.append(reg.coef_[0][0])
 
             if kernal=='LGB':
-                params = {
-                    'num_leaves': 50,
-                    'metric': ['l1', 'l2'],
-                    'verbose': -1,
-                    'learning_rate': 1,
-                    'lambda_l2': 0,
-                    'drop_rate': 0,
-                    'objective': 'regression'
-                }
+
                 lgb_train = lgb.Dataset(X_train, y_train.ravel())
 
                 gbm = lgb.train(params,

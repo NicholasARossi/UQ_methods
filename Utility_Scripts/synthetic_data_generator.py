@@ -1,18 +1,13 @@
 import numpy as np
 import pandas as pd
 
-def meal_income(size=1000,return_df=False,n_dimensions=1):
+def meal_income(size=1000,return_df=False):
     x_values = np.sort(np.random.uniform(100, size=size))
     y_values = []
     for x_value in x_values:
         y_values.append(np.random.uniform(x_value))
 
-    if n_dimensions==1:
-        meal_dict={'X':x_values.reshape(-1,1),'y':np.array(y_values).reshape(-1,1),'mu':x_values/2,'sigma':np.sqrt(x_values**2/12)}
-    else:
-        meal_dict={'y':np.array(y_values).reshape(-1,1),'mu':x_values/2,'sigma':np.sqrt(x_values**2/12)}
-        for n in range(n_dimensions):
-            meal_dict[f'X{n}']=x_values.reshape(-1,1)
+    meal_dict={'X':x_values.reshape(-1,1),'y':np.array(y_values).reshape(-1,1),'mu':x_values/2,'sigma':np.sqrt(x_values**2/12)}
 
     if return_df==False:
         return meal_dict
@@ -22,6 +17,20 @@ def meal_income(size=1000,return_df=False,n_dimensions=1):
             meal_income_df[key] = meal_dict[key].ravel()
 
         return meal_income_df
+
+def two_feature_uncertainty(size=1000):
+
+    df=pd.DataFrame(columns=['y','X0','X1'])
+
+    y_values = np.sort(np.random.uniform(100, size=size))
+    x1 = [np.random.uniform(l) for l in y_values]
+    x0 = [100 - np.random.uniform(l) for l in y_values][::-1]
+
+    df['y'] = y_values
+    df['X0'] = x0
+    df['X1'] = x1
+    return df
+
 
 def MLR(feature_noise_caller=False,output_noise_caller=True,n_features=10,data_size=101):
     '''This is a simple helper function that can be used to generate data that features
