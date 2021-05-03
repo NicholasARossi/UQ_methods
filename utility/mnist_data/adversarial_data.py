@@ -38,7 +38,7 @@ class MNIST_EMNIST:
 
         if select_adversarials == True:
             select_labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-                            10,12,14,15,17,20,22,23,27,33]
+                            10,12,14,15,20,22,23,27,31,33]
 
             selection_mask = [lab in select_labels for lab in self.holdout_training_keys]
             self.X_adv_train = self.X_adv_train[selection_mask]
@@ -61,7 +61,7 @@ class MNIST_EMNIST:
             trainers.append(self.X_train[self.train_keys == key][0])
 
         adversarials = []
-        for key in [10,12,14,15,17,20,22,23,27,33]:
+        for key in [10,12,14,15,20,22,23,27,31,33]:
             adversarials.append(self.X_adv_train[self.holdout_training_keys == key][0])
 
         return trainers,adversarials
@@ -91,9 +91,6 @@ class MNIST_EMNIST:
 
 
 def compute_dropout_uncertainty(model,X,n_iter = 10):
-
-    # f = K.function([model.layers[0].input, backend.symbolic_learning_phase()],[model.layers[-1].output])
-
     partial_model = Model(model.inputs, model.layers[-1].output)
     result = []
     for i in range(n_iter):
