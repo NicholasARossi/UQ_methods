@@ -13,6 +13,7 @@ from sklearn.metrics import confusion_matrix,accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle
+import keras
 
 try:
     plt.style.use('rossidata')
@@ -21,7 +22,7 @@ except:
 
 class DropoutMinstModel:
 
-    def __init__(self,base_model=basic_CNN,n_epochs=10,n_dropout_shuffles=10,palette='flare',title=None):
+    def __init__(self,base_model=basic_CNN,n_epochs=10,n_dropout_shuffles=10,palette='flare',title=None,previous_trained_models=None):
         self.base_model=base_model
         self.data=MNIST_EMNIST()
 
@@ -33,6 +34,15 @@ class DropoutMinstModel:
         self.palette=palette
         self.n_dropout_shuffles=n_dropout_shuffles
 
+        if previous_trained_models is not None:
+            ### you can pass a previously trained model to this and ave it repopulate without training
+            self._reinstantiate(previous_trained_models)
+
+    def _reinstantiate(self,previous_trained_models):
+        self.metrics==pickle.load( open(f'{previous_trained_models}/metrics.pkl', "rb" ) )
+        self.uncertainty_model = pickle.load(open(f'{previous_trained_models}/uq.mdl', 'rb'))
+        self.uq_dataframe=pd.read_csv(f'{previous_trained_models}/uq_dataframe.csv')
+        self.trained_mnist_model=keras.models.load_model(f'{previous_trained_models}/mnist.mdl')
 
     def _train_minst_model(self):
         self.trained_mnist_model = self.base_model()
@@ -190,7 +200,17 @@ class DropoutMinstModel:
         prediction_dict['true_mnist_classes']=self.data.holdout_testing_keys
         self.prediction_dict=prediction_dict
 
+    def predict(self,X):
+        predict_dropout_mean, predict_dropout_uq = self.compute_dropout_uncertainty(self.trained_mnist_model,
+                                                                                    X,
+                                                                                    n_iter=self.n_dropout_shuffles)
 
+        is_adversarial=self.uncertainty_model.predict(predict_dropout_uq.reshape(-1,1))
+        is_adversarial_prba=self.uncertainty_model.predict_proba(predict_dropout_uq.reshape(-1,1))[:, 1]
+        print(is_adversarial_prba)
+        predicted_mnsist = self.trained_mnist_model.predict(X)
+        predicted_classes = np.argmax(predicted_mnsist, axis=-1)
+        return is_adversarial,predicted_classes
 
 
     @staticmethod
